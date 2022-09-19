@@ -51,7 +51,6 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 		// remove the top element off the queue (the one w/ the lowest f value)
 		current = queue.top();
 		queue.pop();
-		numNodesExpanded++; // increment number of nodes visited
 
 		// check if the current node is solved
 		if (current.state.isSolved()) {
@@ -67,6 +66,8 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 			cout << endl;*/
 			return current.state;
 		}
+
+		numNodesExpanded++; // increment number of nodes expanded
 
 		// set up children of the current state, one for each possible move on the ball
 		Gearball copies[6];
@@ -100,18 +101,29 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 			}
 		}
 
-		// assign children to nodes
+		// get the move that would undo the previous move so it can not be included as one of the children
+		int nodeNotToInclude;
+		if (current.movePerformed % 2 == 0) {
+			nodeNotToInclude = current.movePerformed + 1;
+		}
+		else {
+			nodeNotToInclude = current.movePerformed - 1;
+		}
+
+		// assign children to nodes (avoiding the node not to include)
 		node nodes[6];
 		for (int i = 0; i < 6; i++) {
-			nodes[i] = node();
-			nodes[i].parent = &current;
-			nodes[i].state = copies[i];
-			nodes[i].g = current.g + 1;
-			nodes[i].h = copies[i].calculateHeuristicValue();
-			nodes[i].movePerformed = i;
+			if (i != nodeNotToInclude) {
+				nodes[i] = node();
+				nodes[i].parent = &current;
+				nodes[i].state = copies[i];
+				nodes[i].g = current.g + 1;
+				nodes[i].h = copies[i].calculateHeuristicValue();
+				nodes[i].movePerformed = i;
 
-			// push the new node onto the queue
-			queue.push(nodes[i]);
+				// push the new node onto the queue
+				queue.push(nodes[i]);
+			}
 		}
 	}
 	// if algorithm doesn't find a solution (although it should), just return the most recent node's state
