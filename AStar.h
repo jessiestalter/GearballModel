@@ -3,7 +3,6 @@
 #include <string>
 #include <iostream>
 #include <vector>
-//#include <unordered_map>
 #include <queue>
 
 using namespace std;
@@ -11,7 +10,7 @@ using namespace std;
 // creating a node struct
 struct node {
 	node* parent; // pointer to its parent node
-	Gearball state; // the node's puzzle state
+	Gearball state; // the node's puzzle state (is represented by a Gearball object)
 	int g; // cost
 	int h; // heuristic
 	int movePerformed; // an int representing the move that was performed to get from the previous puzzle state to this one
@@ -31,15 +30,15 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 	// initialize priority queue
 	priority_queue<node> queue;
 
-	// initialize variable to keep track of the number of nodes visited
+	// initialize variable to keep track of the number of nodes expanded
 	int numNodesExpanded = 0;
 
 	// create new node for the initial state
 	node startNode = node();
 	startNode.parent = NULL;
 	startNode.state = randomizedBall;
-	startNode.g = 1;
-	startNode.h = 1;
+	startNode.g = 0;
+	startNode.h = 0;
 	startNode.movePerformed = -1;
 	queue.push(startNode); // put it into the queue
 
@@ -56,15 +55,9 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 		if (current.state.isSolved()) {
 			cout << "The gearball has been solved!" << endl;
 			cout << numNodesExpanded << " total nodes were expanded" << endl;
-			node* pointer = &current;
+			cout << "The solution was found at a depth of " << current.g << endl;
 
-			// TODO: get backtracking portion of code working to figure out the path
-			/*while (pointer != NULL) {
-				cout << pointer->movePerformed;
-				pointer = pointer->parent;
-			}
-			cout << endl;*/
-			return current.state;
+			return current.state; // returns the solved puzzle
 		}
 
 		numNodesExpanded++; // increment number of nodes expanded
@@ -101,19 +94,19 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 			}
 		}
 
-		// get the move that would undo the previous move so it can not be included as one of the children
-		int nodeNotToInclude;
+		// get the move that would undo the previous move so it can be excluded as one of the children
+		int nodeToExclude;
 		if (current.movePerformed % 2 == 0) {
-			nodeNotToInclude = current.movePerformed + 1;
+			nodeToExclude = current.movePerformed + 1;
 		}
 		else {
-			nodeNotToInclude = current.movePerformed - 1;
+			nodeToExclude = current.movePerformed - 1;
 		}
 
-		// assign children to nodes (avoiding the node not to include)
+		// assign children to nodes (avoiding the excluded node)
 		node nodes[6];
 		for (int i = 0; i < 6; i++) {
-			if (i != nodeNotToInclude) {
+			if (i != nodeToExclude) {
 				nodes[i] = node();
 				nodes[i].parent = &current;
 				nodes[i].state = copies[i];
@@ -133,7 +126,7 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 // function to generate random puzzles and solve them using A*
 // function generates 5 k-randomized puzzles, where k is the randomizing parameter from 3 to 20
 // function then solves each puzzle using the A* algorithm defined above
-Gearball* generateAndSolveRandomizedGearballs(int k) {
+void generateAndSolveRandomizedGearballs(int k) {
 	// generate 5 k-randomized gearballs and solves them
 	Gearball randomizedBalls[5];
 	Gearball solvedBalls[5];
@@ -143,10 +136,12 @@ Gearball* generateAndSolveRandomizedGearballs(int k) {
 	for (int i = 0; i < 5; i++) {
 		cout << endl << "Gearball " << i + 1 << " ..." << endl;
 		randomizedBalls[i] = Gearball();
+		//srand(time(0)); // to make sure I get different random numbers
 		string movesPerformed = randomizedBalls[i].randomizeGearball(k);
 
 		// check if a gearball with the same moves performed has been solved
 		while (find(moves.begin(), moves.end(), movesPerformed) != moves.end()) {
+			randomizedBalls[i].resetGearball();
 			movesPerformed = randomizedBalls[i].randomizeGearball(k);
 		}
 
@@ -156,6 +151,4 @@ Gearball* generateAndSolveRandomizedGearballs(int k) {
 		// solve the randomized gearball
 		solvedBalls[i] = solveUsingAStar(randomizedBalls[i]);
 	}
-
-	return solvedBalls;
 }
