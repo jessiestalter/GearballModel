@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <algorithm>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 	startNode.parent = NULL;
 	startNode.state = randomizedBall;
 	startNode.g = 0;
-	startNode.h = 0;
+	startNode.h = 1;
 	startNode.movePerformed = -1;
 	queue.push(startNode); // put it into the queue
 
@@ -52,10 +53,10 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 		queue.pop();
 
 		// check if the current node is solved
-		if (current.state.isSolved()) {
+		if (current.h == 0) {
 			cout << "The gearball has been solved!" << endl;
 			cout << numNodesExpanded << " total nodes were expanded" << endl;
-			cout << "The solution was found at a depth of " << current.g << endl;
+			cout << "The solution was found at a depth of " << current.g << endl << endl;
 
 			return current.state; // returns the solved puzzle
 		}
@@ -127,16 +128,15 @@ Gearball solveUsingAStar(Gearball randomizedBall) {
 // function generates 5 k-randomized puzzles, where k is the randomizing parameter from 3 to 20
 // function then solves each puzzle using the A* algorithm defined above
 void generateAndSolveRandomizedGearballs(int k) {
-	// generate 5 k-randomized gearballs and solves them
+	// generates 5 k-randomized gearballs and solves them
 	Gearball randomizedBalls[5];
 	Gearball solvedBalls[5];
 
 	// array of the moves performed to randomize the gearball
 	vector<string> moves;
 	for (int i = 0; i < 5; i++) {
-		cout << endl << "Gearball " << i + 1 << " ..." << endl;
+		cout << "Gearball " << i + 1 << " ..." << endl;
 		randomizedBalls[i] = Gearball();
-		//srand(time(0)); // to make sure I get different random numbers
 		string movesPerformed = randomizedBalls[i].randomizeGearball(k);
 
 		// check if a gearball with the same moves performed has been solved
@@ -145,7 +145,7 @@ void generateAndSolveRandomizedGearballs(int k) {
 			movesPerformed = randomizedBalls[i].randomizeGearball(k);
 		}
 
-		cout << "Moves performed (printed for testing): " << movesPerformed << endl;
+		//cout << "Moves performed (printed for testing): " << movesPerformed << endl;
 		moves.push_back(movesPerformed);
 
 		// solve the randomized gearball

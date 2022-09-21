@@ -2,6 +2,7 @@
 #include <time.h>
 #include <string>
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -127,6 +128,7 @@ string Gearball::randomizeGearball(int numMoves) {
 	int prevMove = -2;
 	int numSameMoves = 0;
 	srand(time(0)); // to make sure I get different random numbers
+
 	while (numMoves != 0) {
 		randomMove = rand() % 6; // gets a random number between 0 and 5
 		if (randomMove % 2 == 0) { // CW move
@@ -184,6 +186,7 @@ string Gearball::randomizeGearball(int numMoves) {
 		numMoves--;
 	}
 	//cout << endl; // for testing purposes
+	//cout << movesPerformed << endl;
 	return movesPerformed;
 }
 
@@ -1207,8 +1210,8 @@ bool Gearball::isSolved() {
 	for (int i = 0; i < 6; i++) {
 		for (int x = 0; x < 9; x++) {
 			for (int y = 0; y < 9; y++) {
-				// makes sure the space being checked is not a blank space or a gear space
-				if (faces[i].faceArray[x][y] != ' ' && !faces[i].isGearSpace(x, y)) {
+				// makes sure the space being checked is not a blank space
+				if (faces[i].faceArray[x][y] != ' ') {
 					if (i == 0) {
 						if (faces[i].faceArray[x][y] != 'B') {
 							return false;

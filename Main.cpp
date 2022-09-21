@@ -80,10 +80,10 @@ int main()
             break;
         }
         case 8: {
-            cout << "What would you like the value of the randomizing paramater (k) to be? " << endl;
+            cout << "What would you like the value of the randomizing parameter (k) to be?" << endl;
             int k;
             cin >> k;
-            Gearball* solvedBalls[5] = { generateAndSolveRandomizedGearballs(k) };
+            generateAndSolveRandomizedGearballs(k);
         }
         default: {
             printMenu();
